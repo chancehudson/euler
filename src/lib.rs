@@ -26,10 +26,46 @@ pub fn exp(x: f64) -> f64 {
 
 #[test]
 pub fn calculate_euler() {
+    use std::time::Instant;
     // produce a warning if the value passed to `exp` is > 400?
     // values above x = 400 converge on 1
-    for z in 0..1000_u32 {
-        println!("{z}");
-        println!("{}", euler_50_approx(z as f64));
+    let mut total_ns: u128 = 0;
+    let mut approx_vals = vec![];
+    let mut native_vals = vec![];
+    let iterations = 1000_usize;
+    for z in 0..iterations {
+        let now = Instant::now();
+        let e = euler_50_approx(z as f64);
+        approx_vals.push(e);
+        // println!("{e}");
+        let elapsed = now.elapsed();
+        total_ns += elapsed.as_nanos();
+
+        // println!("{z}");
+        // println!("{z} {e}: {:.2?}", elapsed);
     }
+    let average_ns = total_ns / u128::try_from(iterations).unwrap();
+    println!("euler_50_approx avg: {average_ns} ns");
+
+    total_ns = 0;
+
+    for z in 0..iterations {
+        let now = Instant::now();
+        // let e = euler_50_approx(z as f64);
+        let e = f64::exp(z as f64);
+        native_vals.push(e);
+        // println!("{e}");
+        let elapsed = now.elapsed();
+        total_ns += elapsed.as_nanos();
+
+        // println!("{z}");
+        // println!("{z} {e}: {:.2?}", elapsed);
+    }
+    for z in 0..iterations {
+        // if native_vals[z] != approx_vals[z] {
+        //     println!("mismatch at {z}");
+        //     println!("{} != {}", native_vals[z], approx_vals[z]);
+        // }
+    }
+    println!("rust euler avg: {average_ns} ns");
 }
